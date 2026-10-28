@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "trace_id": "tr-20261103-141203-7f3a",
+  "ask_id": "ask-01JCF9A1B2C3D4E5F6G7H8J9K0",
+  "scenario_id": "scenario:yunqi-backend-lead",
+  "question": "你最大的失败是什么",
+  "matched": {
+    "qa": "qa:biggest-failure",
+    "hit_path": "index",
+    "score": 4.7,
+    "variant_exact": true
+  },
+  "degraded": false,
+  "card": {
+    "l1": ["2025 对账 P1", "补偿任务漏退款", "我牵头复盘", "补了检查清单"],
+    "l2": [
+      "2025-09 迁移当晚 P1，延迟 4 小时 12 分",
+      "根因是补偿任务漏了退款流水，不是架构问题",
+      "我牵头复盘，补了发布检查清单",
+      "之后对账 P95 从 45 分钟降到 8 分钟"
+    ],
+    "l3": "2025 年 9 月账务迁移当晚，对账延迟从 22:10 持续到 02:05，峰值 4 小时 12 分，定级 P1。根因是双写补偿任务没有覆盖退款流水；我牵头复盘，把这一项补进了发布检查清单。之后对账 P95 从 45 分钟降到 8 分钟。这是迁移本身的改善，但 P1 的代价也是真实的。",
+    "fallback": "这次事故我有责任，具体数字我按复盘口径说，不粉饰。",
+    "confidence": {
+      "level": "red",
+      "reasons": ["open_conflict", "ref_yellow"]
+    },
+    "citations": [
+      {
+        "source": "source:postmortem-2025",
+        "source_version": 1,
+        "block": "b-0001",
+        "quote": "2025-09-18 22:10 至 2025-09-19 02:05，账务平台对账延迟，持续 3 小时 55 分，定级 P1",
+        "page_label": "《P1 复盘》第 1 页",
+        "supports": ["l2:0"]
+      },
+      {
+        "source": "source:postmortem-2025",
+        "source_version": 1,
+        "block": "b-0002",
+        "quote": "对账延迟峰值 4 小时 12 分",
+        "page_label": "《P1 复盘》第 1 页",
+        "supports": ["l2:0"]
+      },
+      {
+        "source": "source:postmortem-2025",
+        "source_version": 1,
+        "block": "b-0003",
+        "quote": "根因：分库迁移中新旧双写补偿任务未覆盖退款流水",
+        "page_label": "《P1 复盘》第 1 页",
+        "supports": ["l2:1"]
+      },
+      {
+        "source": "source:postmortem-2025",
+        "source_version": 1,
+        "block": "b-0005",
+        "quote": "发布检查清单缺少\"补偿任务覆盖退款流水\"一项，已补充",
+        "page_label": "《P1 复盘》第 2 页",
+        "supports": ["l2:2"]
+      },
+      {
+        "source": "source:resume-2026",
+        "source_version": 1,
+        "block": "b-0005",
+        "quote": "对账延迟 P95 从 45 分钟降至 8 分钟",
+        "page_label": "《林舟简历 2026》第 2 页",
+        "supports": ["l2:3"]
+      }
+    ],
+    "do_not_say": ["零故障", "从没出过问题"],
+    "must_show_fallback_first": true
+  },
+  "timings_ms": {"l1": 210, "l2": 320, "l3": 1180, "total": 1240},
+  "notices": [
+    "检测到未决冲突 cfl-01JCF8Q4R6T2W8Y4B6D2F8H1K3：简历称迁移零故障，复盘记录 P1",
+    "本卡为红色置信度，已优先展示兜底话术"
+  ]
+}

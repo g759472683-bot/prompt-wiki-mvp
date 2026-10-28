@@ -1,0 +1,371 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prompt-wiki.local/schema/page.frontmatter.schema.json",
+  "title": "LLM Wiki Page Frontmatter v1.0",
+  "description": "页面 frontmatter 的机器可读契约。以 docs/wiki-schema-contract-v1.0.md 为准。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "type",
+    "title",
+    "summary",
+    "status",
+    "language",
+    "revision",
+    "created_at",
+    "updated_at",
+    "created_by",
+    "run_id"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "id": { "$ref": "#/$defs/pageId" },
+    "type": {
+      "enum": ["index", "source", "entity", "claim", "story", "metric", "qa", "scenario"]
+    },
+    "title": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "summary": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "status": { "enum": ["draft", "active", "stale", "retired"] },
+    "language": { "type": "string", "default": "zh-CN" },
+    "revision": { "type": "integer", "minimum": 1 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "created_by": { "type": "string", "pattern": "^(compiler|human:.+)$" },
+    "run_id": { "type": ["string", "null"], "pattern": "^run-[0-9]{8}-[0-9]{2}$" },
+    "tags": {
+      "type": "array",
+      "maxItems": 8,
+      "items": { "type": "string", "minLength": 1, "maxLength": 16 },
+      "uniqueItems": true
+    },
+    "review": { "$ref": "#/$defs/review" },
+    "freshness": { "$ref": "#/$defs/freshness" },
+    "confidence": { "$ref": "#/$defs/confidence" },
+    "evidence": { "$ref": "#/$defs/evidenceList" },
+    "conflicts": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^cfl-[0-9A-Z]{26}$" },
+      "uniqueItems": true
+    },
+    "conflict_state": { "enum": ["none", "open", "resolved"] },
+    "aliases": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 30 },
+      "uniqueItems": true
+    },
+    "notes": { "type": ["string", "null"], "maxLength": 500 },
+
+    "index_scope": { "enum": ["root", "domain"] },
+    "domain": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+
+    "source": { "$ref": "#/$defs/sourceMeta" },
+    "trust": { "enum": ["high", "medium", "low"] },
+    "version": { "type": "integer", "minimum": 1 },
+    "supersedes": { "type": ["string", "null"] },
+    "archived_at": { "type": ["string", "null"], "format": "date-time" },
+    "extraction": { "$ref": "#/$defs/extraction" },
+
+    "entity_kind": { "enum": ["person", "org", "product", "project", "concept"] },
+
+    "statement": { "type": "string", "minLength": 5, "maxLength": 60 },
+    "claim_kind": {
+      "enum": ["experience", "capability", "technical", "commercial", "customer", "market"]
+    },
+    "scope": { "type": "string", "minLength": 5, "maxLength": 200 },
+    "verification": { "enum": ["verified", "unverified"] },
+
+    "story_kind": { "enum": ["project", "incident", "conflict", "achievement"] },
+    "role": { "type": "string", "minLength": 1, "maxLength": 30 },
+    "period": { "type": "string", "pattern": "^[0-9]{4}(-[0-9]{2})?( ~ [0-9]{4}(-[0-9]{2})?)?$" },
+    "team_size": { "type": ["integer", "null"], "minimum": 1 },
+    "stack": { "type": "array", "items": { "type": "string", "maxLength": 30 } },
+    "metrics": { "type": "array", "items": { "$ref": "#/$defs/pageId" } },
+
+    "metric": { "$ref": "#/$defs/metricMeta" },
+
+    "question": { "type": "string", "minLength": 4, "maxLength": 40 },
+    "question_variants": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 6,
+      "items": { "type": "string", "minLength": 3, "maxLength": 60 },
+      "uniqueItems": true
+    },
+    "intent": {
+      "enum": [
+        "factual", "behavioral", "technical", "motivation",
+        "risk", "commercial", "hr", "other"
+      ]
+    },
+    "scenario_kinds": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "enum": ["interview", "pitch", "meeting"] },
+      "uniqueItems": true
+    },
+    "answer": { "$ref": "#/$defs/answer" },
+    "card": { "$ref": "#/$defs/card" },
+    "evidence_refs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "items": { "$ref": "#/$defs/pageId" },
+      "uniqueItems": true
+    },
+
+    "scenario_kind": { "enum": ["interview", "pitch", "meeting"] },
+    "counterparty": { "$ref": "#/$defs/pageId" },
+    "scheduled_at": { "type": "string", "format": "date-time" },
+    "duration_min": { "type": "integer", "minimum": 15, "maximum": 480 },
+    "goal": { "type": "string", "minLength": 5, "maxLength": 100 },
+    "audience": { "type": "array", "items": { "type": "string", "maxLength": 30 } },
+    "questions": {
+      "type": "array",
+      "maxItems": 20,
+      "items": { "$ref": "#/$defs/scenarioQuestion" }
+    },
+    "constraints": { "$ref": "#/$defs/constraints" },
+    "prepared_at": { "type": ["string", "null"], "format": "date-time" },
+    "prep_run": { "type": ["string", "null"] }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "index" } } },
+      "then": { "required": ["index_scope"] }
+    },
+    {
+      "if": { "properties": { "type": { "const": "source" } } },
+      "then": {
+        "required": ["source", "trust", "version", "supersedes", "archived_at", "extraction"]
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "entity" } } },
+      "then": { "required": ["entity_kind", "confidence", "evidence"] }
+    },
+    {
+      "if": { "properties": { "type": { "const": "claim" } } },
+      "then": {
+        "required": ["statement", "claim_kind", "scope", "verification", "confidence", "evidence"]
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "story" } } },
+      "then": { "required": ["story_kind", "role", "period", "confidence", "evidence"] }
+    },
+    {
+      "if": { "properties": { "type": { "const": "metric" } } },
+      "then": { "required": ["metric", "confidence", "evidence"] }
+    },
+    {
+      "if": { "properties": { "type": { "const": "qa" } } },
+      "then": {
+        "required": [
+          "question", "question_variants", "intent", "scenario_kinds",
+          "answer", "card", "evidence_refs", "confidence"
+        ]
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "scenario" } } },
+      "then": {
+        "required": [
+          "scenario_kind", "counterparty", "scheduled_at", "duration_min",
+          "goal", "questions", "prepared_at", "prep_run"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "pageId": {
+      "type": "string",
+      "pattern": "^(index|source|entity|claim|story|metric|qa|scenario):[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewed_by", "reviewed_at"],
+      "properties": {
+        "reviewed_by": { "type": "string", "pattern": "^human:.+$" },
+        "reviewed_at": { "type": "string", "format": "date-time" },
+        "review_run": { "type": ["string", "null"] }
+      }
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "valid_from": { "type": ["string", "null"], "format": "date" },
+        "valid_until": { "type": ["string", "null"], "format": "date" },
+        "review_after": { "type": ["string", "null"], "format": "date" }
+      }
+    },
+    "confidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "reasons", "rule", "computed_at"],
+      "properties": {
+        "level": { "enum": ["green", "yellow", "red"] },
+        "reasons": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "pattern": "^[a-z_]+$" }
+        },
+        "rule": { "const": "rule_v1" },
+        "computed_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "evidenceList": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/evidence" }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "source_version", "block", "quote", "role", "verified"],
+      "properties": {
+        "source": { "$ref": "#/$defs/pageId" },
+        "source_version": { "type": "integer", "minimum": 1 },
+        "block": { "type": "string", "pattern": "^b-[0-9]{4}$" },
+        "quote": { "type": "string", "minLength": 5, "maxLength": 200 },
+        "role": { "enum": ["primary", "supporting", "counter"] },
+        "verified": { "type": "boolean" }
+      }
+    },
+    "sourceMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "doc_id", "filename", "mime", "sha256", "imported_at", "parser", "parser_version", "language"
+      ],
+      "properties": {
+        "doc_id": { "type": "string", "minLength": 3 },
+        "filename": { "type": "string", "minLength": 1 },
+        "mime": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "bytes": { "type": "integer", "minimum": 0 },
+        "pages": { "type": "integer", "minimum": 1 },
+        "imported_at": { "type": "string", "format": "date-time" },
+        "parser": { "type": "string" },
+        "parser_version": { "type": "string" },
+        "language": { "type": "string" }
+      }
+    },
+    "extraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blocks", "warnings", "coverage", "ocr"],
+      "properties": {
+        "blocks": { "type": "integer", "minimum": 1 },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "message"],
+            "properties": {
+              "code": { "type": "string", "pattern": "^[A-Z_]+$" },
+              "block": { "type": "string", "pattern": "^b-[0-9]{4}$" },
+              "message": { "type": "string" }
+            }
+          }
+        },
+        "coverage": { "enum": ["full", "partial"] },
+        "ocr": { "type": "boolean" }
+      }
+    },
+    "metricMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "key", "value", "value_num", "unit", "direction", "period", "method", "scope"],
+      "properties": {
+        "name": { "type": "string", "minLength": 2, "maxLength": 30 },
+        "key": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "value": { "type": "string", "minLength": 1, "maxLength": 20 },
+        "value_num": { "type": "number" },
+        "unit": { "type": "string", "minLength": 1, "maxLength": 10 },
+        "direction": { "enum": ["higher", "lower"] },
+        "period": { "type": "string", "minLength": 1, "maxLength": 20 },
+        "method": { "type": "string", "minLength": 5, "maxLength": 200 },
+        "scope": { "type": "string", "minLength": 2, "maxLength": 100 }
+      }
+    },
+    "answer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target_sec", "tone"],
+      "properties": {
+        "target_sec": { "enum": [30, 60, 90] },
+        "tone": { "enum": ["confident", "honest", "concise"] }
+      }
+    },
+    "card": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["l1", "l2", "fallback", "evidence_refs", "confidence", "built_from"],
+      "properties": {
+        "l1": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 5,
+          "items": { "type": "string", "minLength": 2, "maxLength": 12 }
+        },
+        "l2": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 5,
+          "items": { "type": "string", "minLength": 5, "maxLength": 28 }
+        },
+        "fallback": { "type": "string", "minLength": 5, "maxLength": 100 },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": { "$ref": "#/$defs/pageId" },
+          "uniqueItems": true
+        },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "built_from": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "revision"],
+            "properties": {
+              "id": { "$ref": "#/$defs/pageId" },
+              "revision": { "type": "integer", "minimum": 1 }
+            }
+          }
+        },
+        "do_not_say": {
+          "type": "array",
+          "maxItems": 5,
+          "items": { "type": "string", "minLength": 2, "maxLength": 20 }
+        }
+      }
+    },
+    "scenarioQuestion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["qa", "priority", "must_hit"],
+      "properties": {
+        "qa": { "$ref": "#/$defs/pageId" },
+        "priority": { "enum": [1, 2, 3] },
+        "must_hit": { "type": "boolean" },
+        "note": { "type": "string", "maxLength": 60 }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "do_not_claim": { "type": "array", "items": { "type": "string", "maxLength": 50 } },
+        "must_mention": { "type": "array", "items": { "type": "string", "maxLength": 50 } }
+      }
+    }
+  }
+}

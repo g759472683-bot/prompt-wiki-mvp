@@ -1,0 +1,48 @@
+schema_version: "1.0"
+run_id: run-20261025-02
+reviewer: human:lin
+reviewed_at: 2026-10-25T10:12:00+08:00
+decisions:
+  - op_id: op-01
+    action: approve
+    note: "证据补强，置信度不变（已绿）"
+  - op_id: op-02
+    action: approve
+    note: "案例如实写了 P1 与责任，可用"
+  - op_id: op-03
+    action: edit_then_approve
+    edits:
+      - path: /card/l2/0
+        before: "2025 年迁移时出过一次 P1，很快就恢复了"
+        after: "2025-09 迁移当晚 P1，延迟 4 小时 12 分"
+        pin_created: pin-01JCF7R2K8N4Q6S9V1X3Z5B7D9
+      - path: /card/fallback
+        before: "这块我记不清了，回头查一下。"
+        after: "这次事故我有责任，具体数字我按复盘口径说，不粉饰。"
+        pin_created: pin-01JCF7S4N6Q8S1V3X5Z7B9D1F3
+    extra_pins:
+      - pin_id: pin-01JCF8A3M5P7R9T1V3X5Z7B9D1F3
+        path: /body
+        mode: must_exclude
+        value: "零故障"
+        reason: "禁止再使用简历里的绝对化表述"
+  - op_id: op-04
+    action: approve
+    note: "必须命中，且卡片当前为红色，会前需再确认"
+  - op_id: op-05
+    action: acknowledge
+    note: "保持 open，等财务对账报表；对外先说复盘口径"
+  - op_id: op-06
+    action: acknowledge
+    note: "保持 open，11-02 前必须裁决"
+  - op_id: op-07
+    action: noop_ack
+  - op_id: op-08
+    action: defer
+    note: "面试前必须裁决；暂定对外只用 99.95%"
+  - op_id: op-09
+    action: approve
+    note: "仅刷新 built_from 版本戳，卡片内容不变"
+  - op_id: op-10
+    action: approve
+    note: "仅刷新 built_from 版本戳，卡片内容不变"

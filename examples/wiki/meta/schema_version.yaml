@@ -1,0 +1,6 @@
+schema_version: "1.0"
+status: freeze-candidate
+frozen_at: null
+frozen_by: null
+supported: ["1.0"]
+notes: "W1 冻结候选；冻结后写入 frozen_at 并打 tag wiki-schema-v1.0"

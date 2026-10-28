@@ -1,0 +1,35 @@
+schema_version: "1.0"
+run_id: run-20261025-02
+pages:
+  - page: qa:biggest-failure
+    active_pins: 3
+    checked: 3
+    preserved: 0
+    noop: 3
+    reanchored_pending: 0
+    orphaned: 0
+    violation: 0
+    created: 3
+    retired: 0
+    note: "3 条 Pin 由本次审核编辑创建；草稿中的弱化表述已在审核阶段替换，故提交时为 noop。提交前断言 checked == active_pins 通过。"
+  - page: qa:why-this-role
+    active_pins: 0
+    checked: 0
+    preserved: 0
+    noop: 0
+    reanchored_pending: 0
+    orphaned: 0
+    violation: 0
+    created: 0
+    retired: 0
+  - page: qa:migration-architecture
+    active_pins: 0
+    checked: 0
+    preserved: 0
+    noop: 0
+    reanchored_pending: 0
+    orphaned: 0
+    violation: 0
+    created: 0
+    retired: 0
+silent_loss: 0

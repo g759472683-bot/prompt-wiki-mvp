@@ -1,0 +1,130 @@
+{
+  "schema_version": "1.0",
+  "run_id": "run-20261025-02",
+  "index_read": ["index:root", "index:career"],
+  "ops": [
+    {
+      "op_id": "op-01",
+      "op": "UPDATE",
+      "target": "claim:ledger-migration-led",
+      "base_revision": 2,
+      "patch": [
+        {
+          "path": "/evidence/-",
+          "value": {
+            "source": "source:postmortem-2025",
+            "source_version": 1,
+            "block": "b-0005",
+            "quote": "迁移由林舟牵头，架构方案无问题",
+            "role": "supporting",
+            "verified": true
+          }
+        }
+      ],
+      "reason": "复盘佐证牵头人与架构方案，补强原简历证据",
+      "evidence": ["source:postmortem-2025#b-0005"]
+    },
+    {
+      "op_id": "op-02",
+      "op": "CREATE",
+      "target": "story:ledger-migration-2025",
+      "page_type": "story",
+      "staging_path": ".staging/run-20261025-02/pages/story/ledger-migration-2025.md",
+      "evidence": [
+        "source:resume-2026#b-0004",
+        "source:postmortem-2025#b-0001",
+        "source:postmortem-2025#b-0002",
+        "source:postmortem-2025#b-0003",
+        "source:postmortem-2025#b-0004",
+        "source:postmortem-2025#b-0006"
+      ],
+      "reason": "复盘提供了完整时间线与代价，可讲成 90 秒案例"
+    },
+    {
+      "op_id": "op-03",
+      "op": "CREATE",
+      "target": "qa:biggest-failure",
+      "page_type": "qa",
+      "staging_path": ".staging/run-20261025-02/pages/qa/biggest-failure.md",
+      "evidence": [
+        "source:postmortem-2025#b-0001",
+        "source:postmortem-2025#b-0002",
+        "source:postmortem-2025#b-0003",
+        "source:postmortem-2025#b-0005"
+      ],
+      "reason": "面试必问的失败题，导入复盘后才具备可讲证据"
+    },
+    {
+      "op_id": "op-04",
+      "op": "LINK",
+      "from": "qa:biggest-failure",
+      "to": "scenario:yunqi-backend-lead",
+      "mount": "scenario",
+      "position": {"priority": 1, "must_hit": true},
+      "reason": "诚实度测试题，本场必问"
+    },
+    {
+      "op_id": "op-05",
+      "op": "CONFLICT",
+      "conflict_id": "cfl-01JCF7P3T2M8N4R6W9Y1B5D7F3",
+      "staging_path": ".staging/run-20261025-02/conflicts/cfl-01JCF7P3T2M8N4R6W9Y1B5D7F3.yaml",
+      "reason": "同一 availability 出现 99.99% 与 99.95%，不覆盖，交人裁决"
+    },
+    {
+      "op_id": "op-06",
+      "op": "CONFLICT",
+      "conflict_id": "cfl-01JCF8Q4R6T2W8Y4B6D2F8H1K3",
+      "staging_path": ".staging/run-20261025-02/conflicts/cfl-01JCF8Q4R6T2W8Y4B6D2F8H1K3.yaml",
+      "reason": "简历绝对化表述与复盘 P1 直接矛盾"
+    },
+    {
+      "op_id": "op-07",
+      "op": "NOOP",
+      "target": "entity:yunqi-tech",
+      "reason": "JD 未变化，现有实体页已覆盖，无需重写"
+    },
+    {
+      "op_id": "op-08",
+      "op": "NEEDS_HUMAN",
+      "question": "年度可用性对外用哪个口径？简历 99.99% 还是复盘 99.95%？",
+      "blocking": true,
+      "options": [
+        "以复盘 99.95% 为准，并修改简历表述",
+        "以监控原始报表为准，先核对再定",
+        "拆成两个口径：简历口径与复盘口径分别记录"
+      ],
+      "reason": "涉及个人履历事实，编译器不得替用户下注"
+    },
+    {
+      "op_id": "op-09",
+      "op": "UPDATE",
+      "target": "qa:why-this-role",
+      "base_revision": 1,
+      "patch": [
+        {
+          "path": "/card/built_from",
+          "value": [
+            {"id": "entity:yunqi-tech", "revision": 1},
+            {"id": "claim:ledger-migration-led", "revision": 3}
+          ]
+        }
+      ],
+      "reason": "claim 证据更新导致卡片版本戳过期，刷新（L013 预防）"
+    },
+    {
+      "op_id": "op-10",
+      "op": "UPDATE",
+      "target": "qa:migration-architecture",
+      "base_revision": 1,
+      "patch": [
+        {
+          "path": "/card/built_from",
+          "value": [
+            {"id": "claim:ledger-migration-led", "revision": 3}
+          ]
+        }
+      ],
+      "reason": "claim 证据更新导致卡片版本戳过期，刷新（L013 预防）"
+    }
+  ]
+}

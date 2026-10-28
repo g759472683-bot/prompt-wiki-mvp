@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "trace_id": "tr-20261103-142207-2b91",
+  "ask_id": "ask-01JCF9B2C3D4E5F6G7H8J9K0L1",
+  "scenario_id": "scenario:yunqi-backend-lead",
+  "question": "你怎么看 AI 原生数据栈",
+  "matched": {
+    "qa": null,
+    "hit_path": "bm25",
+    "score": 2.1,
+    "variant_exact": false
+  },
+  "degraded": true,
+  "card": {
+    "l1": ["实时链路", "P99 200ms", "无直接经验"],
+    "l2": [
+      "这块我没有直接经验，只能从支付链路类比",
+      "云栖的挑战是把 P99 压到 200ms"
+    ],
+    "l3": "我没有直接做过 AI 原生数据栈，不想硬编概念。我能谈的是支付链路的高并发一致性经验，以及我对云栖 200ms 目标的理解；具体的技术选型我想先听你们的现状。",
+    "fallback": "这个我没有直接经验，不想编；我能谈的是支付链路的高并发经验，以及我对 200ms 目标的理解。",
+    "confidence": {
+      "level": "yellow",
+      "reasons": ["single_source", "degraded"]
+    },
+    "citations": [
+      {
+        "source": "source:jd-yunqi-2026",
+        "source_version": 1,
+        "block": "b-0004",
+        "quote": "2026 年把核心链路 P99 延迟压到 200ms 以内",
+        "page_label": "《云栖科技 后端负责人 JD》第 1 页",
+        "supports": ["l2:1"]
+      }
+    ],
+    "do_not_say": ["我们已经在做 AI 原生"],
+    "must_show_fallback_first": false
+  },
+  "timings_ms": {"l1": 240, "l2": 900, "l3": 2680, "total": 2750},
+  "notices": [
+    "未命中问答卡，已用 BM25 兜底组装（degraded=true）",
+    "兜底卡只引用 1 份来源，置信度封顶为黄色"
+  ]
+}

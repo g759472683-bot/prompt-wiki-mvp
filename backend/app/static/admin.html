@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>提词卡 · 运营台</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0e1114; --panel:#171c21; --line:#2a333c; --text:#e6edf3; --muted:#9aa7b2; --green:#7bd88f; --red:#ff8a80; --yellow:#ffc107; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif; }
+    header { display:flex; align-items:center; gap:16px; padding:14px 22px; border-bottom:1px solid var(--line); background:#11161b; position:sticky; top:0; z-index:2; }
+    header h1 { font-size:18px; margin:0; }
+    header .muted { margin-left:auto; }
+    nav { display:flex; gap:4px; padding:0 22px; border-bottom:1px solid var(--line); background:#11161b; }
+    nav button { background:none; color:var(--muted); border:0; padding:12px 14px; cursor:pointer; border-bottom:2px solid transparent; }
+    nav button.active { color:var(--text); border-bottom-color:var(--green); }
+    main { max-width:1180px; margin:0 auto; padding:22px; }
+    section { display:none; }
+    section.active { display:block; }
+    .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:16px; }
+    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    input, button, textarea { font:inherit; }
+    input, textarea { background:#0e1114; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:9px 11px; }
+    input[type=file] { padding:6px; }
+    button { background:#24313a; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 12px; cursor:pointer; }
+    button.primary { background:var(--green); color:#08210f; border-color:var(--green); font-weight:600; }
+    button.danger { color:var(--red); }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { text-align:left; border-bottom:1px solid var(--line); padding:9px 8px; vertical-align:top; }
+    th { color:var(--muted); font-weight:500; font-size:12px; }
+    .muted { color:var(--muted); }
+    .ok { color:var(--green); } .bad { color:var(--red); } .warn { color:var(--yellow); }
+    .pill { display:inline-block; padding:1px 8px; border-radius:999px; border:1px solid var(--line); font-size:12px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; }
+    .card { border:1px solid var(--line); border-radius:10px; padding:12px; background:#11161b; margin:8px 0; }
+    .card h4 { margin:0 0 6px; font-size:14px; }
+    .card .l1 span { display:inline-block; background:#222a31; border-radius:999px; padding:2px 8px; margin:2px 3px 2px 0; font-size:12px; }
+    .card .cite { color:var(--muted); font-size:12px; margin-top:6px; }
+    #login { max-width:420px; margin:12vh auto; }
+    #login h2 { margin-top:0; }
+    #login input { width:100%; margin:6px 0 12px; }
+    #toast { position:fixed; right:20px; bottom:20px; background:#24313a; border:1px solid var(--line); padding:10px 14px; border-radius:8px; display:none; max-width:420px; }
+    pre { white-space:pre-wrap; word-break:break-word; background:#0e1114; padding:10px; border-radius:8px; border:1px solid var(--line); max-height:360px; overflow:auto; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>提词卡 · 运营台</h1>
+  <span class="muted" id="who"></span>
+  <button id="logout" class="muted" style="display:none">退出</button>
+</header>
+
+<main>
+  <div id="login" class="panel">
+    <h2>连接工作区</h2>
+    <p class="muted">手机和电脑用同一个邀请码，看到的文档、任务、卡包就是同一份。</p>
+    <label>后端地址</label>
+    <input id="base" placeholder="http://192.168.137.1:8000">
+    <label>邀请码</label>
+    <input id="invite" value="W1-DEMO">
+    <button class="primary" id="loginBtn" style="width:100%">登录</button>
+    <p class="muted" id="loginMsg"></p>
+  </div>
+
+  <div id="app" style="display:none">
+    <nav>
+      <button data-tab="docs" class="active">文档</button>
+      <button data-tab="jobs">任务 / 审核</button>
+      <button data-tab="packs">卡包</button>
+      <button data-tab="consistency">一致性</button>
+      <button data-tab="calibration">校准</button>
+      <button data-tab="releases">APK 发布</button>
+    </nav>
+
+    <section id="docs" class="active">
+      <div class="panel">
+        <div class="row">
+          <input type="file" id="files" multiple accept=".pdf,.docx,.txt,.md">
+          <button class="primary" id="uploadBtn">批量上传</button>
+          <span class="muted">上传后到“任务”里点编译；一次可传 1–5 份。</span>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="row"><strong>文档</strong><button id="refreshDocs">刷新</button></div>
+        <table><thead><tr><th>ID</th><th>文件名</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead><tbody id="docRows"></tbody></table>
+      </div>
+    </section>
+
+    <section id="jobs">
+      <div class="panel">
+        <div class="row"><strong>编译任务</strong><button id="refreshJobs">刷新</button><span class="muted">运行中会自动轮询</span></div>
+        <table><thead><tr><th>ID</th><th>状态</th><th>进度</th><th>结果</th><th>操作</th></tr></thead><tbody id="jobRows"></tbody></table>
+      </div>
+    </section>
+
+    <section id="packs">
+      <div class="panel">
+        <div class="row"><strong>已发布卡包</strong><button id="refreshPacks">刷新</button></div>
+        <table><thead><tr><th>Pack</th><th>卡片数</th><th>批准时间</th><th>操作</th></tr></thead><tbody id="packRows"></tbody></table>
+        <div id="packDetail"></div>
+      </div>
+    </section>
+
+    <section id="consistency">
+      <div class="panel">
+        <div class="row"><strong>跨文档自洽检查</strong><button class="primary" id="scanConsistency">重新扫描</button><span class="muted" id="consistencySummary"></span></div>
+        <p class="muted">规则扫描：同一 metric key 的数值不一致、同一 claim 标题的表述/数字不一致。只提示，不自动改卡。</p>
+        <table><thead><tr><th>级别</th><th>主题</th><th>说明</th><th>材料与值</th></tr></thead><tbody id="consistencyRows"></tbody></table>
+      </div>
+    </section>
+
+    <section id="calibration">
+      <div class="panel">
+        <div class="row"><strong>置信度校准</strong><button id="refreshCalibration">刷新</button><span class="muted">按现场反馈统计，不是模型概率</span></div>
+        <table><thead><tr><th>置信档</th><th>样本</th><th>有用</th><th>没用</th><th>实测准确率</th><th>是否校准</th></tr></thead><tbody id="calibrationRows"></tbody></table>
+        <p class="muted" id="calibrationNote"></p>
+      </div>
+    </section>
+
+    <section id="releases">
+      <div class="panel">
+        <strong>发布新 APK</strong>        <div class="row" style="margin-top:10px">
+          <input id="relCode" type="number" placeholder="versionCode，例如 2" style="width:180px">
+          <input id="relName" placeholder="versionName，例如 0.2.0" style="width:180px">
+          <input type="file" id="relFile" accept=".apk">
+          <button class="primary" id="relUpload">上传</button>
+        </div>
+        <textarea id="relNotes" rows="2" placeholder="更新说明" style="width:100%;margin-top:8px"></textarea>
+        <p class="muted">上传后点“发布”；App 会通过 /v1/app/latest 检查版本。Android 安装仍需用户确认。</p>
+      </div>
+      <div class="panel">
+        <div class="row"><strong>版本列表</strong><button id="refreshReleases">刷新</button></div>
+        <table><thead><tr><th>versionCode</th><th>versionName</th><th>大小</th><th>状态</th><th>操作</th></tr></thead><tbody id="relRows"></tbody></table>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div id="toast"></div>
+<script>
+const $ = (id) => document.getElementById(id);
+const state = {
+  base: localStorage.getItem('pw_base') || location.origin,
+  token: localStorage.getItem('pw_token') || '',
+  device: localStorage.getItem('pw_device') || ('dev-web-' + Math.random().toString(36).slice(2, 12)),
+};
+localStorage.setItem('pw_device', state.device);
+let jobsTimer = null;
+
+function esc(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function toast(msg, bad=false) {
+  const el = $('toast'); el.textContent = msg; el.style.display='block';
+  el.style.color = bad ? 'var(--red)' : 'var(--text)';
+  clearTimeout(el._t); el._t = setTimeout(()=>el.style.display='none', 4200);
+}
+async function api(path, options={}) {
+  const headers = Object.assign({}, options.headers || {});
+  if (state.token) headers.Authorization = 'Bearer ' + state.token;
+  const res = await fetch(state.base.replace(/\/$/,'') + path, Object.assign({}, options, {headers}));
+  const text = await res.text();
+  let body = null;
+  try { body = text ? JSON.parse(text) : null; } catch (_) { body = text; }
+  if (!res.ok) {
+    if (res.status === 401) showLogin('登录已过期，请重新登录');
+    const detail = body && body.detail ? body.detail : text;
+    throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+  }
+  return body;
+}
+function showLogin(msg='') {
+  $('login').style.display='block'; $('app').style.display='none'; $('logout').style.display='none';
+  $('who').textContent=''; $('loginMsg').textContent=msg;
+  if (jobsTimer) { clearInterval(jobsTimer); jobsTimer=null; }
+}
+function showApp() {
+  $('login').style.display='none'; $('app').style.display='block'; $('logout').style.display='inline-block';
+  $('who').textContent = '工作区 ' + (localStorage.getItem('pw_invite') || '');
+  loadDocs(); loadJobs(); loadPacks(); loadReleases();
+  if (jobsTimer) clearInterval(jobsTimer);
+  jobsTimer = setInterval(()=>{ if (document.getElementById('jobs').classList.contains('active')) loadJobs(); }, 3000);
+}
+async function login() {
+  state.base = $('base').value.trim().replace(/\/$/,'') || location.origin;
+  const invite = $('invite').value.trim();
+  $('loginBtn').disabled = true; $('loginMsg').textContent = '登录中…';
+  try {
+    const body = await api('/v1/auth/device', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({device_id: state.device, invite_code: invite, name:'Web 运营台'})});
+    state.token = body.token;
+    localStorage.setItem('pw_token', state.token);
+    localStorage.setItem('pw_base', state.base);
+    localStorage.setItem('pw_invite', invite);
+    showApp();
+  } catch (e) { $('loginMsg').textContent = '登录失败：' + e.message; }
+  finally { $('loginBtn').disabled = false; }
+}
+async function loadDocs() {
+  try {
+    const docs = await api('/v1/documents');
+    $('docRows').innerHTML = docs.map(d => `<tr><td>${esc(d.id)}</td><td>${esc(d.filename)}</td><td>${esc(d.status)}</td><td>${esc(d.created_at)}</td><td><button onclick="compileDoc('${esc(d.id)}')">编译</button></td></tr>`).join('') || '<tr><td colspan="5" class="muted">暂无文档</td></tr>';
+  } catch (e) { toast(e.message, true); }
+}
+async function uploadDocs() {
+  const files = $('files').files;
+  if (!files.length) return toast('先选文件', true);
+  $('uploadBtn').disabled = true;
+  try {
+    for (const file of files) {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('doc_type', 'resume');
+      fd.append('trust', 'high');
+      await api('/v1/documents', {method:'POST', body: fd});
+      toast('已上传 ' + file.name);
+    }
+    loadDocs();
+  } catch (e) { toast('上传失败：' + e.message, true); }
+  finally { $('uploadBtn').disabled = false; }
+}
+async function compileDoc(id) {
+  try {
+    await api('/v1/compile-jobs', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({document_id:id, with_cards:true})});
+    toast('已入队'); loadJobs();
+  } catch (e) { toast('入队失败：' + e.message, true); }
+}
+async function loadJobs() {
+  try {
+    const jobs = await api('/v1/jobs');
+    $('jobRows').innerHTML = jobs.map(j => {
+      const result = j.result || {};
+      const pages = (result.pages || []).length;
+      const cards = (result.cards || []).length;
+      const canApprove = j.status === 'succeeded' && result.run_id;
+      return `<tr><td>${esc(j.id)}</td><td>${esc(j.status)}</td><td>${j.progress}%</td><td>${pages} 页 / ${cards} 卡${j.error ? '<br><span class="bad">' + esc(j.error) + '</span>' : ''}</td><td>${canApprove ? `<button onclick="approveRun('${esc(result.run_id)}')">审核 / 批准</button>` : ''}</td></tr>`;
+    }).join('') || '<tr><td colspan="5" class="muted">暂无任务</td></tr>';
+  } catch (e) { toast(e.message, true); }
+}
+async function approveRun(runId) {
+  try {
+    const review = await api('/v1/runs/' + encodeURIComponent(runId) + '/review');
+    const pages = (review.pages || []).length;
+    const cards = (review.cards || []).length;
+    const collisions = (review.collisions || []).length;
+    if (!confirm(`Run ${runId}\n页面 ${pages} / 卡片 ${cards} / 冲突 ${collisions}\n\n确认批准并发布？`)) return;
+    const out = await api('/v1/runs/' + encodeURIComponent(runId) + '/approve', {method:'POST'});
+    toast('已批准：' + (out.pack_path || '') + '；到卡包页查看');
+    loadJobs(); loadPacks();
+  } catch (e) { toast('批准失败：' + e.message, true); }
+}
+async function loadPacks() {
+  try {
+    const packs = await api('/v1/packs');
+    $('packRows').innerHTML = packs.map(p => `<tr><td>${esc(p.pack_id)}</td><td>${p.card_count}</td><td>${esc(p.approved_at || '')}</td><td><button onclick="showPack('${esc(p.pack_id)}')">查看卡片</button></td></tr>`).join('') || '<tr><td colspan="4" class="muted">暂无卡包</td></tr>';
+  } catch (e) { toast(e.message, true); }
+}
+let currentPack = null;
+let currentPackId = '';
+
+async function showPack(packId) {
+  try {
+    const pack = await api('/v1/packs/' + encodeURIComponent(packId));
+    currentPack = pack;
+    currentPackId = packId;
+    const cards = (pack.cards || []).map(c => {
+      const points = (c.points || []).map(p => `<div style="margin-top:8px"><strong>${p.index}. ${esc(p.summary)}</strong> <span class="cite">置信度 ${p.confidence?.score || ''}%</span> <button onclick="editPoint('${esc(c.qa_id)}',${p.index})">编辑/固定</button><div>${esc(p.detail)}</div>${(p.followups || []).map(f => `<div class="cite">Q：${esc(f.question)}<br>A：${esc(f.answer)}</div>`).join('')}</div>`).join('');
+      return `<div class="card"><h4>${esc(c.question)}</h4><div class="muted">置信度 ${c.confidence?.score || ''}%</div><div class="l1">${(c.l1 || []).map(x => `<span>${esc(x)}</span>`).join('')}</div><div class="muted">${(c.l2 || []).map(x => '· ' + esc(x)).join('<br>')}</div>${points ? `<details><summary>逐条展开</summary>${points}</details>` : ''}<div class="cite">依据 ${(c.citations || []).length} 条：${(c.citations || []).map(x => esc(x.page_label)).join(' / ')}</div></div>`;
+    }).join('');
+    $('packDetail').innerHTML = `<h3>${esc(packId)} · ${(pack.cards||[]).length} 张</h3>${cards}`;
+  } catch (e) { toast(e.message, true); }
+}
+
+async function editPoint(qaId, index) {
+  if (!currentPack) return;
+  const card = (currentPack.cards || []).find(c => c.qa_id === qaId);
+  const point = card && (card.points || []).find(p => p.index === index);
+  if (!point) return toast('找不到这个论点', true);
+  const summary = prompt('摘要（会固定，不再被重编译覆盖）', point.summary);
+  if (summary === null) return;
+  const detail = prompt('展开说明', point.detail);
+  if (detail === null) return;
+  try {
+    await api('/v1/pins/point', {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({qa_id: qaId, point_index: index, summary, detail})
+    });
+    toast('已固定；重新拉取卡包可看到');
+    showPack(currentPackId);
+  } catch (e) { toast('固定失败：' + e.message, true); }
+}
+
+async function loadConsistency() {
+  try {
+    const data = await api('/v1/consistency');
+    $('consistencySummary').textContent = `文档 ${data.document_count} · 高危 ${data.high} · 中危 ${data.medium}`;
+    $('consistencyRows').innerHTML = (data.conflicts || []).map(item => `<tr><td>${item.severity === 'high' ? '<span class="bad">高危</span>' : '<span class="warn">中危</span>'}</td><td>${esc(item.topic)}</td><td>${esc(item.message)}</td><td>${(item.values || []).map(v => `${esc(v.document)}：${esc(v.value)}`).join('<br>')}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">未发现跨文档冲突</td></tr>';
+  } catch (e) { toast('一致性扫描失败：' + e.message, true); }
+}
+
+async function loadCalibration() {
+  try {
+    const data = await api('/v1/calibration');
+    $('calibrationRows').innerHTML = (data.buckets || []).map(b => `<tr><td>${esc(b.confidence)}</td><td>${b.samples}</td><td>${b.useful}</td><td>${b.not_useful}</td><td>${b.accuracy === null ? '—' : Math.round(b.accuracy * 100) + '%'}</td><td>${b.calibrated ? '<span class="ok">已校准</span>' : '<span class="muted">样本不足</span>'}</td></tr>`).join('');
+    $('calibrationNote').textContent = data.note || '';
+  } catch (e) { toast('校准读取失败：' + e.message, true); }
+}
+async function loadReleases() {
+  try {
+    const releases = await api('/v1/releases');
+    $('relRows').innerHTML = releases.map(r => `<tr><td>${r.version_code}</td><td>${esc(r.version_name)}</td><td>${Math.round(r.size_bytes/1024/1024*10)/10} MB</td><td>${r.active ? '<span class="ok">当前发布</span>' : '<span class="muted">未发布</span>'}</td><td>${r.active ? '' : `<button onclick="activateRelease('${esc(r.id)}')">发布</button>`} <a href="${esc(state.base + r.download_url)}" target="_blank">下载</a></td></tr>`).join('') || '<tr><td colspan="5" class="muted">暂无版本</td></tr>';
+  } catch (e) { toast(e.message, true); }
+}
+async function uploadRelease() {
+  const file = $('relFile').files[0];
+  const code = $('relCode').value;
+  const name = $('relName').value.trim();
+  if (!file || !code || !name) return toast('版本号、文件名都要填', true);
+  const fd = new FormData();
+  fd.append('version_code', code); fd.append('version_name', name);
+  fd.append('notes', $('relNotes').value); fd.append('file', file);
+  $('relUpload').disabled = true;
+  try { await api('/v1/releases', {method:'POST', body: fd}); toast('已上传，点“发布”生效'); loadReleases(); }
+  catch (e) { toast('上传失败：' + e.message, true); }
+  finally { $('relUpload').disabled = false; }
+}
+async function activateRelease(id) {
+  try { await api('/v1/releases/' + encodeURIComponent(id) + '/activate', {method:'POST'}); toast('已发布'); loadReleases(); }
+  catch (e) { toast(e.message, true); }
+}
+document.querySelectorAll('nav button').forEach(btn => btn.onclick = () => {
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b === btn));
+  document.querySelectorAll('section').forEach(s => s.classList.toggle('active', s.id === btn.dataset.tab));
+  if (btn.dataset.tab === 'jobs') loadJobs();
+  if (btn.dataset.tab === 'packs') loadPacks();
+  if (btn.dataset.tab === 'consistency') loadConsistency();
+  if (btn.dataset.tab === 'calibration') loadCalibration();
+  if (btn.dataset.tab === 'releases') loadReleases();
+});
+$('loginBtn').onclick = login;
+$('logout').onclick = () => { localStorage.removeItem('pw_token'); state.token=''; showLogin(); };
+$('uploadBtn').onclick = uploadDocs;
+$('refreshDocs').onclick = loadDocs;
+$('refreshJobs').onclick = loadJobs;
+$('refreshPacks').onclick = loadPacks;
+$('scanConsistency').onclick = loadConsistency;
+$('refreshCalibration').onclick = loadCalibration;
+$('refreshReleases').onclick = loadReleases;
+$('relUpload').onclick = uploadRelease;
+$('base').value = state.base;
+if (state.token) showApp(); else showLogin();
+</script>
+</body>
+</html>

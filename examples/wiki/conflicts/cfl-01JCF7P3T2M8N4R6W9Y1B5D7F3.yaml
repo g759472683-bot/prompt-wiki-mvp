@@ -1,0 +1,41 @@
+schema_version: "1.0"
+conflict_id: cfl-01JCF7P3T2M8N4R6W9Y1B5D7F3
+status: open
+kind: numeric_mismatch
+severity: blocker
+detected_at: 2026-10-25T10:05:00+08:00
+detected_by: rule:numeric
+run_id: run-20261025-02
+subject:
+  pages: [metric:availability-2025]
+  field: /metric/value
+  key: availability
+variants:
+  - variant_id: v1
+    claim: "简历：2025 年度可用性 99.99%"
+    value: "99.99%"
+    evidence:
+      source: source:resume-2026
+      source_version: 1
+      block: b-0005
+      quote: "账务平台年度可用性 99.99%"
+  - variant_id: v2
+    claim: "复盘：2025 年度可用性 99.95%"
+    value: "99.95%"
+    evidence:
+      source: source:postmortem-2025
+      source_version: 1
+      block: b-0006
+      quote: "2025 年度可用性 99.95%，未达 99.99% 目标"
+resolution:
+  mode: null
+  chosen: null
+  rationale: null
+  resolved_by: null
+  resolved_at: null
+due_at: 2026-11-01
+audit:
+  - at: 2026-10-25T10:05:00+08:00
+    by: compiler
+    action: created
+    note: "同一 metric.key=availability 出现两个年度值，差 0.04 个百分点"

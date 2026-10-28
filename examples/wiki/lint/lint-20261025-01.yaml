@@ -1,0 +1,39 @@
+schema_version: "1.0"
+lint_run_id: lint-20261025-01
+started_at: 2026-10-25T10:30:00+08:00
+finished_at: 2026-10-25T10:30:02+08:00
+scope: all
+summary:
+  blocker: 2
+  major: 0
+  info: 1
+  pages: 15
+gate:
+  publish_allowed: false
+  prep_allowed: false
+  reasons:
+    - "L005：2 个未决冲突（availability、migration_zero_downtime）"
+    - "场景 must_hit 的 qa:biggest-failure 依赖未决冲突页 claim:zero-downtime-migration"
+    - "场景在 10-24 已准备，10-25 新增必答卡后未重新准备"
+issues:
+  - code: L005
+    severity: blocker
+    page: claim:zero-downtime-migration
+    locator: /conflict_state
+    message: "存在未决冲突 cfl-01JCF8Q4R6T2W8Y4B6D2F8H1K3，该断言不得作为卡片证据"
+    suggested_fix: "裁决冲突：改写表述或标记 counter，然后重编译"
+    status: open
+  - code: L005
+    severity: blocker
+    page: metric:availability-2025
+    locator: /metric/value
+    message: "99.99% 与复盘口径 99.95% 未裁决，对外只能说复盘口径"
+    suggested_fix: "与监控原始报表核对后 choose 或 synthesize"
+    status: open
+  - code: L016
+    severity: info
+    page: source:postmortem-2025
+    locator: /extraction/warnings/0
+    message: "时间线表格按纯文本重建（TABLE_FLATTENED），数值已人工核对"
+    suggested_fix: "无需处理；若重新导入建议保留表格结构"
+    status: acknowledged

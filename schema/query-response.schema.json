@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prompt-wiki.local/schema/query-response.schema.json",
+  "title": "LLM Wiki Ask Response (done frame) v1.0",
+  "description": "提词查询 done 帧。生产环境为 SSE；本文件描述完整快照。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "trace_id", "ask_id", "scenario_id", "question",
+    "matched", "degraded", "card", "timings_ms"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "trace_id": { "type": "string", "minLength": 6 },
+    "ask_id": { "type": "string", "pattern": "^ask-[0-9A-Z]{26}$" },
+    "scenario_id": { "$ref": "#/$defs/pageId" },
+    "question": { "type": "string", "minLength": 2, "maxLength": 200 },
+    "matched": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["qa", "hit_path", "score", "variant_exact"],
+      "properties": {
+        "qa": { "type": ["string", "null"] },
+        "hit_path": { "enum": ["index", "bm25", "none"] },
+        "score": { "type": "number" },
+        "variant_exact": { "type": "boolean" }
+      }
+    },
+    "degraded": { "type": "boolean" },
+    "card": { "$ref": "#/$defs/card" },
+    "timings_ms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["l1", "l2", "l3", "total"],
+      "properties": {
+        "l1": { "type": "integer", "minimum": 0 },
+        "l2": { "type": "integer", "minimum": 0 },
+        "l3": { "type": "integer", "minimum": 0 },
+        "total": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "notices": {
+      "type": "array",
+      "items": { "type": "string", "maxLength": 200 }
+    }
+  },
+  "$defs": {
+    "pageId": {
+      "type": "string",
+      "pattern": "^(index|source|entity|claim|story|metric|qa|scenario):[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "card": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "l1", "l2", "l3", "fallback", "confidence", "citations",
+        "must_show_fallback_first"
+      ],
+      "properties": {
+        "l1": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "items": { "type": "string", "maxLength": 20 }
+        },
+        "l2": {
+          "type": "array",
+          "maxItems": 5,
+          "items": { "type": "string", "maxLength": 40 }
+        },
+        "l3": { "type": "string", "maxLength": 6000 },
+        "fallback": { "type": "string", "minLength": 5, "maxLength": 160 },
+        "confidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["level", "reasons"],
+          "properties": {
+            "level": { "enum": ["green", "yellow", "red"] },
+            "reasons": {
+              "type": "array",
+              "items": { "type": "string", "pattern": "^[a-z_]+$" }
+            }
+          }
+        },
+        "citations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/citation" }
+        },
+        "do_not_say": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 20 }
+        },
+        "must_show_fallback_first": { "type": "boolean" }
+      }
+    },
+    "citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "source_version", "block", "quote", "page_label"],
+      "properties": {
+        "source": { "$ref": "#/$defs/pageId" },
+        "source_version": { "type": "integer", "minimum": 1 },
+        "block": { "type": "string", "pattern": "^b-[0-9]{4}$" },
+        "quote": { "type": "string", "minLength": 5, "maxLength": 200 },
+        "page_label": { "type": "string", "minLength": 2, "maxLength": 60 },
+        "supports": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^l2:[0-4]$" }
+        }
+      }
+    }
+  }
+}

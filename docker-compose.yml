@@ -1,0 +1,33 @@
+services:
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      ENV: ${ENV:-dev}
+      SECRET_KEY: ${SECRET_KEY:-dev-only-change-me-0123456789abcdef}
+      INVITE_CODES: ${INVITE_CODES:-W1-DEMO}
+      DATA_DIR: /data
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-20}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-flash}
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+
+  worker:
+    build: ./backend
+    command: ["python", "-m", "app.worker"]
+    environment:
+      ENV: ${ENV:-dev}
+      SECRET_KEY: ${SECRET_KEY:-dev-only-change-me-0123456789abcdef}
+      INVITE_CODES: ${INVITE_CODES:-W1-DEMO}
+      DATA_DIR: /data
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-20}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-flash}
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+    depends_on:
+      - api

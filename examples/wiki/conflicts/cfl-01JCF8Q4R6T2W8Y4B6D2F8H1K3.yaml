@@ -1,0 +1,41 @@
+schema_version: "1.0"
+conflict_id: cfl-01JCF8Q4R6T2W8Y4B6D2F8H1K3
+status: open
+kind: factual_contradiction
+severity: blocker
+detected_at: 2026-10-25T10:05:00+08:00
+detected_by: llm:compare
+run_id: run-20261025-02
+subject:
+  pages: [claim:zero-downtime-migration]
+  field: /statement
+  key: migration_zero_downtime
+variants:
+  - variant_id: v1
+    claim: "简历：迁移全程零故障"
+    value: "迁移全程零故障"
+    evidence:
+      source: source:resume-2026
+      source_version: 1
+      block: b-0004
+      quote: "迁移全程零故障"
+  - variant_id: v2
+    claim: "复盘：迁移当晚发生 P1，持续 3 小时 55 分"
+    value: "P1，持续 3 小时 55 分"
+    evidence:
+      source: source:postmortem-2025
+      source_version: 1
+      block: b-0001
+      quote: "账务平台对账延迟，持续 3 小时 55 分，定级 P1"
+resolution:
+  mode: null
+  chosen: null
+  rationale: null
+  resolved_by: null
+  resolved_at: null
+due_at: 2026-11-02
+audit:
+  - at: 2026-10-25T10:05:00+08:00
+    by: compiler
+    action: created
+    note: "简历绝对化表述与复盘时间线直接矛盾，禁止自动裁决"

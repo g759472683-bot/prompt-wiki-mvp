@@ -1,0 +1,36 @@
+schema_version: "1.0"
+run_id: run-20261025-02
+kind: ingest
+status: completed_with_blockers
+started_at: 2026-10-25T10:02:11+08:00
+finished_at: 2026-10-25T10:12:30+08:00
+wiki_snapshot_at: 2026-10-25T10:00:00+08:00
+inputs:
+  - source: source:postmortem-2025
+    version: 1
+    sha256: "b2c3d4e5f6071829b2c3d4e5f6071829b2c3d4e5f6071829b2c3d4e5f6071829"
+index_read: [index:root, index:career]
+model:
+  name: deepseek-v3.1
+  prompt_version: ingest-1.0.0
+  temperature: 0
+budget:
+  ops_max: 20
+  tokens_in: 48210
+  tokens_out: 6210
+  cost_usd: 0.038
+stats:
+  ops: 10
+  created: 2
+  updated: 3
+  linked: 1
+  noop: 1
+  conflicts: 2
+  needs_human: 1
+  rejected: 0
+timings_ms:
+  parse: 2100
+  plan: 15200
+  write: 28400
+  validate: 900
+  total: 51200
